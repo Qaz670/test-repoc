@@ -1,270 +1,153 @@
-using System;
-using System.Collections.Generic;
-using UnityEngine;
+import { DisplayValueHeader, Color } from 'pixel_combats/basic';
+import { Game, Players, Inventory, LeaderBoard, BuildBlocksSet, Teams, Damage, BreackGraph, Ui, Properties, GameMode, Spawns, Timers, TeamsBalancer, Build, AreaService, AreaPlayerTriggerService, AreaViewService } from 'pixel_combats/room';
 
-namespace PixelCombats2.AdminSystem
-{
-    [System.Serializable]
-    public class AdminData
-    {
-        public string playerId;
-        public string playerName;
-        public AdminLevel level;
-        public List<string> permissions;
-        public DateTime grantDate;
-        public string grantedBy;
-    }
+const weaponcolor = new Color(0, 1, 1, 0);
+const skincolor = new Color(0, 5, 0, 0);
+const block = new Color(128, 128, 0, 0);
+const fly = new Color(0, 0, 2, 0);
+const hpcolor = new Color(9, 0, 0, 0);
+const statcolor = new Color(1, 1, 1, 1);
 
-    public enum AdminLevel
-    {
-        None = 0,
-        Moderator = 1,
-        Admin = 2,
-        SuperAdmin = 3
-    }
+Damage.GetContext().DamageOut.Value = true;
+Damage.GetContext().FriendlyFire.Value = true;
+BreackGraph.OnlyPlayerBlocksDmg = true;
 
-    public class AdminManager : MonoBehaviour
-    {
-        public static AdminManager Instance { get; private set; }
-        
-        [SerializeField] private List<AdminData> adminList = new List<AdminData>();
-        [SerializeField] private AdminData currentAdmin;
-        
-        // Параметры полета
-        [Header("Flight Settings")]
-        [SerializeField] private float flightSpeed = 10f;
-        [SerializeField] private float flightAcceleration = 20f;
-        [SerializeField] private float maxFlightSpeed = 50f;
-        
-        private bool isFlying = false;
-        private CharacterController characterController;
-        private Vector3 flightVelocity;
-        
-        void Awake()
-        {
-            if (Instance == null)
-            {
-                Instance = this;
-                DontDestroyOnLoad(gameObject);
-                LoadAdminData();
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-        }
-        
-        void Update()
-        {
-            if (isFlying && currentAdmin != null)
-            {
-                HandleFlight();
-            }
-        }
-        
-        public bool IsPlayerAdmin(string playerId)
-        {
-            return adminList.Exists(admin => admin.playerId == playerId);
-        }
-        
-        public AdminData GetAdminData(string playerId)
-        {
-            return adminList.Find(admin => admin.playerId == playerId);
-        }
-        
-        public bool HasPermission(string playerId, string permission)
-        {
-            var admin = GetAdminData(playerId);
-            return admin != null && admin.permissions.Contains(permission);
-        }
-        
-        public void AddAdmin(string playerId, string playerName, AdminLevel level, 
-                           List<string> permissions, string grantedBy)
-        {
-            if (IsPlayerAdmin(playerId))
-            {
-                UpdateAdmin(playerId, level, permissions);
-                return;
-            }
-            
-            var newAdmin = new AdminData
-            {
-                playerId = playerId,
-                playerName = playerName,
-                level = level,
-                permissions = permissions,
-                grantDate = DateTime.Now,
-                grantedBy = grantedBy
-            };
-            
-            adminList.Add(newAdmin);
-            SaveAdminData();
-            
-            Debug.Log($"Админ добавлен: {playerName} (ID: {playerId})");
-            
-            // Уведомление в сети
-            NetworkManager.Instance?.SendAdminNotification($"{playerName} теперь администратор");
-        }
-        
-        public void RemoveAdmin(string playerId)
-        {
-            var admin = GetAdminData(playerId);
-            if (admin != null)
-            {
-                adminList.Remove(admin);
-                SaveAdminData();
-                
-                Debug.Log($"Админ удален: {admin.playerName}");
-                
-                // Если удаляем текущего админа, отключаем его возможности
-                if (currentAdmin != null && currentAdmin.playerId == playerId)
-                {
-                    currentAdmin = null;
-                    DisableFlight();
-                }
-            }
-        }
-        
-        public void UpdateAdmin(string playerId, AdminLevel level, List<string> permissions)
-        {
-            var admin = GetAdminData(playerId);
-            if (admin != null)
-            {
-                admin.level = level;
-                admin.permissions = permissions;
-                SaveAdminData();
-            }
-        }
-        
-        public void SetCurrentAdmin(string playerId)
-        {
-            currentAdmin = GetAdminData(playerId);
-            
-            if (currentAdmin != null)
-            {
-                Debug.Log($"Текущий админ: {currentAdmin.playerName}");
-                
-                // Инициализация компонентов для админ-способностей
-                InitializeAdminAbilities();
-            }
-        }
-        
-        private void InitializeAdminAbilities()
-        {
-            characterController = GetComponent<CharacterController>();
-            
-            if (characterController == null && currentAdmin != null)
-            {
-                var playerObject = GameObject.FindGameObjectWithTag("Player");
-                if (playerObject != null)
-                {
-                    characterController = playerObject.GetComponent<CharacterController>();
-                }
-            }
-        }
-        
-        // Система полета
-        public void ToggleFlight()
-        {
-            if (currentAdmin == null || !HasPermission(currentAdmin.playerId, "flight"))
-            {
-                Debug.Log("Нет прав на полет");
-                return;
-            }
-            
-            isFlying = !isFlying;
-            
-            if (isFlying)
-            {
-                EnableFlight();
-            }
-            else
-            {
-                DisableFlight();
-            }
-        }
-        
-        private void EnableFlight()
-        {
-            if (characterController != null)
-            {
-                characterController.enabled = false;
-                flightVelocity = Vector3.zero;
-            }
-            
-            Debug.Log("Полет активирован");
-        }
-        
-        private void DisableFlight()
-        {
-            if (characterController != null)
-            {
-                characterController.enabled = true;
-            }
-            
-            Debug.Log("Полет деактивирован");
-        }
-        
-        private void HandleFlight()
-        {
-            if (characterController == null) return;
-            
-            // Получаем ввод
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical = Input.GetAxis("Vertical");
-            float upDown = 0f;
-            
-            if (Input.GetKey(KeyCode.Space)) upDown = 1f;
-            if (Input.GetKey(KeyCode.LeftControl)) upDown = -1f;
-            
-            Vector3 inputDirection = new Vector3(horizontal, upDown, vertical).normalized;
-            
-            // Преобразуем ввод в мировые координаты
-            Vector3 moveDirection = transform.forward * inputDirection.z + 
-                                   transform.right * inputDirection.x + 
-                                   transform.up * inputDirection.y;
-            
-            // Ускорение
-            flightVelocity = Vector3.MoveTowards(flightVelocity, 
-                moveDirection * maxFlightSpeed, 
-                flightAcceleration * Time.deltaTime);
-            
-            // Перемещение
-            transform.position += flightVelocity * Time.deltaTime;
-            
-            // Поворот камеры (если нужно)
-            if (Input.GetMouseButton(1)) // Правая кнопка мыши
-            {
-                float mouseX = Input.GetAxis("Mouse X") * 2f;
-                float mouseY = Input.GetAxis("Mouse Y") * 2f;
-                
-                transform.Rotate(Vector3.up * mouseX);
-                Camera.main.transform.Rotate(Vector3.left * mouseY);
-            }
-        }
-        
-        // Сохранение и загрузка данных
-        private void SaveAdminData()
-        {
-            string jsonData = JsonUtility.ToJson(new AdminListWrapper { admins = adminList });
-            PlayerPrefs.SetString("AdminData", jsonData);
-            PlayerPrefs.Save();
-        }
-        
-        private void LoadAdminData()
-        {
-            if (PlayerPrefs.HasKey("AdminData"))
-            {
-                string jsonData = PlayerPrefs.GetString("AdminData");
-                var wrapper = JsonUtility.FromJson<AdminListWrapper>(jsonData);
-                adminList = wrapper.admins;
-            }
-        }
-        
-        [System.Serializable]
-        private class AdminListWrapper
-        {
-            public List<AdminData> admins;
-        }
-    }
-            }
+Teams.Add("Blue", "<b>Игроки</b>", new Color(1, 1, 1, 1));
+Teams.Add("Red", "<b>Админы</b>", new Color(0, 0, 0, 0));
+var admsTeam = Teams.Get("Red");
+var playersTeam = Teams.Get("Blue");
+Teams.Get("Blue").Spawns.SpawnPointsGroups.Add(1);
+Teams.Get("Red").Spawns.SpawnPointsGroups.Add(2);
+playersTeam.Build.BlocksSet.Value = BuildBlocksSet.Blue;
+admsTeam.Build.BlocksSet.Value = BuildBlocksSet.AllClear;
+
+let currentTime = new Date().toLocaleString("en-US", {timeZone: "Europe/Moscow"});
+
+Teams.Get("Blue").Properties.Get("Deaths").Value = "<b><i><color=red>Покупки</color> от FVVF!!!</i></b>";
+Teams.Get("Red").Properties.Get("Deaths").Value = "<i><b><color=cyan>Сервер создан : </a></b></i>" + currentTime;
+LeaderBoard.PlayerLeaderBoardValues = [
+  new DisplayValueHeader("Kills", "<b>Киллы</b>", "<b>Киллы</b>"),
+  new DisplayValueHeader("Deaths", "<b>Смерти</b>", "<b>Смерти</b>"),
+  new DisplayValueHeader("Scores", "<b>Очки</b>", "<b>Очки</b>"),
+  new DisplayValueHeader("Status", "<b>Статус</b>", "<b>Статус</b>")
+];
+
+LeaderBoard.PlayersWeightGetter.Set(function(player) {
+  return player.Properties.Get("Scores").Value;
+});
+
+Ui.GetContext().TeamProp1.Value = { Team: "Blue", Prop: "Deaths" };
+Ui.GetContext().TeamProp2.Value = { Team: "Red", Prop: "Deaths" };
+
+Teams.OnRequestJoinTeam.Add(function(player, team){
+  if (GameMode.Parameters.GetBool('hello')) { 
+    player.Ui.Hint.Value = `Привет ${player.NickName} ,  (${player.Id})!`; 
+  }
+if (player.id == "B8144131B9F6EF9C" 
+    Teams.Get("Red").Add(player);
+  } else {
+    Teams.Get("Blue").Add(player);
+  } 
+  if (GameMode.Parameters.GetBool("miniHp")) {
+    player.contextedProperties.MaxHp.Value = 50;
+  }
+  if (GameMode.Parameters.GetBool("bigHp")) {
+    player.contextedProperties.MaxHp.Value = 150;
+  }
+  // Для меня
+  if (player.id == "B8144131B9F6EF9C") {
+    getadm(player);
+  }
+  // Для девочки
+  if (pla
+if (player.id == "") {
+   player.Properties.Get("Status").Value = "<i><b><color=yellow>Создатель</color></b></i>";
+  }
+if (player.id == "" || player.id == "" || player.id == "" || player.id == "" || player.id == "" || player.id == "") {
+   if (player.id == "" || player.id == "" || player.id == "" || player.id == "" || player.id == "" || player.id == "") {
+    player.Properties.Get("Status").Value = "<i><b><color=red>Админ</color></b></i>";
+  }
+  } else {
+    player.Properties.Get("Status").Value = "<i><b><color=blue>Игрок</color></b></i>";
+  }
+});
+
+Teams.OnPlayerChangeTeam.Add(function(player){ 
+  player.Spawns.Spawn();
+  player.PopUp("Покупки от <i><b><color=red>FVVF</color></b></i>});
+var immortalityTimerName = "immortality";
+Spawns.GetContext().OnSpawn.Add(function(player){
+  player.Properties.Immortality.Value = true;
+  timer = player.Timers.Get(immortalityTimerName).Restart(5);
+});
+Timers.OnPlayerTimer.Add(function(timer){
+  if (timer.Id != immortalityTimerName) return;
+  timer.Player.Properties.Immortality.Value = false;
+});
+
+Damage.OnDeath.Add(function(player) {
+  if (GameMode.Parameters.GetBool('AutoSpawn')) {
+    Spawns.GetContext(player).Spawn();
+    ++player.Properties.Deaths.Value;
+    return;
+  }
+  ++p.Properties.Deaths.Value;
+});
+Damage.OnDamage.Add(function(player, damaged, damage) {
+  if (GameMode.Parameters.GetBool("scoresOnDamage")) {
+    if (player.id != damaged.id) player.Properties.Scores.Value += Math.ceil(damage);
+  }
+});
+
+Damage.OnKill.Add(function(player, killed) {
+  if (player.id !== killed.id) { 
+    ++player.Properties.Kills.Value;
+    player.Properties.Scores.Value += 100;
+  }
+ if (player.Properties.Kills.Value == 1) {
+    player.PopUp("<b><size=15>Выполнено Достижение!<color=lime> \n Первое убийство (Награда: 2500 монет, 1 пропуск для ящика)</color></size></b>");
+    player.Properties.Scores.Value += 1000;
+  }
+  if (p.Properties.Kills.Value == 10) {
+    p.PopUp("<b><size=15>Выполнено Достижение!<color=lime> \n Убийца, убейте 10 игроков (Награда: 10000 монет, 2 пропуска для ящика)</color></size></b>");
+    p.Properties.Scores.Value += 10000;
+  }
+  if (p.Properties.Kills.Value == 50) {
+    p.PopUp("<b><size=15>Выполнено Достижение!<color=lime> \n ТЫ МАНЬЯК?!, убейте 50 игроков (Награда: 20000 монет, Статус Маньяк, 5 пропусков для ящика)</color></size></b>");
+    p.Properties.Scores.Value += 50000;
+    p.Properties.Get("Статус").Value = "<b><color=red>Маньяк</color></b>";
+  }
+  if (p.Properties.Kills.Value == 100) {
+    p.PopUp("<b><size=15>Выполнено Достижение!<color=lime> \n Киллер, убейте 100 игроков (Награда: 35000 монет, Статус Киллер, 10 пропусков для ящика)</color></size></b>");
+    p.Properties.Scores.Value += 100000;
+    p.Properties.Get("Статус").Value = "<b><color=red>Киллер</color></b>";
+  }
+  if (p.Properties.Kills.Value == 200) {
+    p.PopUp("<b><size=15>Выполнено Достижение!<color=lime> \n Демон, убейте 200 игроков (Награда: 75000 монет, Статус Демон, 15 пропусков для ящика)</color></size></b>");
+    p.Properties.Scores.Value += 200000;
+    p.Properties.Get("Статус").Value = "<b><color=red>Демон</color></b>";
+    p.contextedProperties.SkinType.Value = 2;
+  }
+  if (p.Properties.Kills.Value == 350) {
+    p.PopUp("<b><size=15>Выполнено Достижение!<color=lime> \n Мафия, убейте 350 игроков (Награда: 125000 монет, Статус Мафиози, 25 пропусков для ящика)</color></size></b>");
+    p.Properties.Scores.Value += 350000;
+    p.Properties.Get("Статус").Value = "<b><color=red>Мафиози</color></b>";
+  }
+  if (p.Properties.Kills.Value == 750) {
+    p.PopUp("<b><size=15>Выполнено Достижение!<color=lime> \n СВО, убейте 500 игроков (Награда: 250000 монет, Статус СВО, 40 пропусков для ящика)</color></size></b>");
+    p.Properties.Scores.Value += 750000;
+    p.Properties.Get("Статус").Value = "<b><color=red>СВО</color></b>";
+    p.contextedProperties.SkinType.Value = 1;
+  }
+});
+
+
+var inventory = Inventory.GetContext();
+inventory.Main.Value = false;
+inventory.Secondary.Value = false;
+inventory.Melee.Value = false;
+inventory.Explosive.Value = false;
+inventory.Build.Value = false;
+inventory.BuildInfinity.Value = false;
+
+Spawns.GetContext().RespawnTime.Value = 5;
