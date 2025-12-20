@@ -1,438 +1,52 @@
-{
-  "gameModes": {
-    "deathmatch": {
-      "name": "Deathmatch",
-      "description": "Классический режим смерти. Убей как можно больше врагов!",
-      "maxPlayers": 16,
-      "minPlayers": 2,
-      "timeLimit": 600,
-      "scoreLimit": 50,
-      "respawnTime": 3,
-      "weapons": [
-        "pistol",
-        "shotgun",
-        "assault_rifle",
-        "sniper_rifle"
-      ],
-      "powerUps": [
-        "health_pack",
-        "ammo_pack",
-        "speed_boost",
-        "double_damage"
-      ],
-      "spawnProtection": true,
-      "spawnProtectionTime": 2,
-      "friendlyFire": false,
-      "teams": false,
-      "mapRotation": [
-        "dust2",
-        "inferno",
-        "mirage"
-      ]
-    },
-    "team_deathmatch": {
-      "name": "Team Deathmatch",
-      "description": "Командный бой до последнего патрона!",
-      "maxPlayers": 16,
-      "minPlayers": 4,
-      "teams": true,
-      "teamCount": 2,
-      "teamNames": ["Red", "Blue"],
-      "teamColors": ["#ff5555", "#5555ff"],
-      "timeLimit": 600,
-      "scoreLimit": 100,
-      "respawnTime": 3,
-      "weapons": [
-        "assault_rifle",
-        "shotgun",
-        "smg",
-        "sniper_rifle"
-      ],
-      "powerUps": [
-        "health_pack",
-        "ammo_pack",
-        "team_health"
-      ],
-      "spawnProtection": true,
-      "spawnProtectionTime": 2,
-      "friendlyFire": false,
-      "victoryCondition": "score_limit"
-    },
-    "capture_the_flag": {
-      "name": "Capture the Flag",
-      "description": "Захвати флаг противника и вернись на базу!",
-      "maxPlayers": 24,
-      "minPlayers": 4,
-      "teams": true,
-      "teamCount": 2,
-      "teamNames": ["Red", "Blue"],
-      "teamColors": ["#ff5555", "#5555ff"],
-      "timeLimit": 900,
-      "scoreLimit": 5,
-      "respawnTime": 5,
-      "flagReturnTime": 30,
-      "flagCapturePoints": 1,
-      "weapons": [
-        "assault_rifle",
-        "smg",
-        "pistol",
-        "knife"
-      ],
-      "powerUps": [
-        "speed_boost",
-        "invisibility",
-        "shield"
-      ],
-      "spawnProtection": false,
-      "friendlyFire": false,
-      "victoryCondition": "score_limit",
-      "maps": [
-        "ctf_canyon",
-        "ctf_fortress",
-        "ctf_temple"
-      ]
-    },
-    "battle_royale": {
-      "name": "Battle Royale",
-      "description": "Последний выживший побеждает!",
-      "maxPlayers": 100,
-      "minPlayers": 10,
-      "teams": false,
-      "timeLimit": 1800,
-      "stormDamage": 5,
-      "stormShrinkTime": 60,
-      "stormStartDelay": 120,
-      "startingWeapons": ["pistol"],
-      "lootSpawnRate": 0.3,
-      "vehicleSpawnRate": 0.1,
-      "respawnEnabled": false,
-      "parachuteEnabled": true,
-      "victoryCondition": "last_man_standing",
-      "maps": ["br_island", "br_desert", "br_snow"]
-    },
-    "zombie_survival": {
-      "name": "Zombie Survival",
-      "description": "Выживите как можно дольше против орд зомби!",
-      "maxPlayers": 12,
-      "minPlayers": 4,
-      "teams": false,
-      "initialZombieCount": 1,
-      "zombieSpawnRate": 30,
-      "zombieHealth": 100,
-      "zombieDamage": 20,
-      "zombieSpeed": 1.2,
-      "waves": 10,
-      "waveDuration": 300,
-      "respawnEnabled": false,
-      "barricadeHealth": 500,
-      "weapons": [
-        "shotgun",
-        "assault_rifle",
-        "pistol",
-        "grenade"
-      ],
-      "powerUps": [
-        "health_pack",
-        "ammo_pack",
-        "turret",
-        "barricade_repair"
-      ],
-      "victoryCondition": "survive_all_waves",
-      "maps": ["zs_hospital", "zs_lab", "zs_city"]
-    },
-    "gun_game": {
-      "name": "Gun Game",
-      "description": "Меняй оружие после каждого убийства!",
-      "maxPlayers": 12,
-      "minPlayers": 2,
-      "teams": false,
-      "timeLimit": 480,
-      "scoreLimit": 20,
-      "respawnTime": 1,
-      "weaponProgression": [
-        "knife",
-        "pistol",
-        "smg",
-        "shotgun",
-        "assault_rifle",
-        "sniper_rifle",
-        "rocket_launcher",
-        "knife"
-      ],
-      "demoteOnDeath": false,
-      "spawnProtection": false,
-      "victoryCondition": "weapon_progression_complete",
-      "maps": ["gg_small", "gg_arena", "gg_factory"]
-    }
-  },
-  
-  "weapons": {
-    "pistol": {
-      "name": "Pistol",
-      "damage": 25,
-      "fireRate": 300,
-      "ammo": 12,
-      "reloadTime": 1.5,
-      "accuracy": 0.85,
-      "range": 50,
-      "bulletSpeed": 40,
-      "spread": 0.05
-    },
-    "assault_rifle": {
-      "name": "Assault Rifle",
-      "damage": 20,
-      "fireRate": 100,
-      "ammo": 30,
-      "reloadTime": 2.5,
-      "accuracy": 0.75,
-      "range": 100,
-      "bulletSpeed": 60,
-      "spread": 0.1
-    },
-    "shotgun": {
-      "name": "Shotgun",
-      "damage": 15,
-      "pelletCount": 8,
-      "fireRate": 800,
-      "ammo": 8,
-      "reloadTime": 3.0,
-      "accuracy": 0.5,
-      "range": 25,
-      "bulletSpeed": 30,
-      "spread": 0.3
-    },
-    "sniper_rifle": {
-      "name": "Sniper Rifle",
-      "damage": 100,
-      "fireRate": 1500,
-      "ammo": 5,
-      "reloadTime": 3.0,
-      "accuracy": 0.95,
-      "range": 200,
-      "bulletSpeed": 100,
-      "spread": 0.01,
-      "scopeZoom": 2.0
-    },
-    "smg": {
-      "name": "SMG",
-      "damage": 15,
-      "fireRate": 50,
-      "ammo": 40,
-      "reloadTime": 2.0,
-      "accuracy": 0.65,
-      "range": 60,
-      "bulletSpeed": 50,
-      "spread": 0.15
-    },
-    "knife": {
-      "name": "Knife",
-      "damage": 50,
-      "range": 2,
-      "cooldown": 500,
-      "instantKillBackstab": true
-    }
-  },
-  
-  "powerUps": {
-    "health_pack": {
-      "name": "Health Pack",
-      "type": "health",
-      "healthRestore": 50,
-      "duration": 0,
-      "spawnRate": 0.2,
-      "respawnTime": 30,
-      "maxOnMap": 5
-    },
-    "ammo_pack": {
-      "name": "Ammo Pack",
-      "type": "ammo",
-      "ammoRestore": 30,
-      "duration": 0,
-      "spawnRate": 0.3,
-      "respawnTime": 20,
-      "maxOnMap": 8
-    },
-    "speed_boost": {
-      "name": "Speed Boost",
-      "type": "buff",
-      "speedMultiplier": 1.5,
-      "duration": 15,
-      "spawnRate": 0.1,
-      "respawnTime": 60,
-      "maxOnMap": 2
-    },
-    "double_damage": {
-      "name": "Double Damage",
-      "type": "buff",
-      "damageMultiplier": 2.0,
-      "duration": 20,
-      "spawnRate": 0.05,
-      "respawnTime": 90,
-      "maxOnMap": 1
-    },
-    "invisibility": {
-      "name": "Invisibility",
-      "type": "buff",
-      "transparency": 0.3,
-      "duration": 10,
-      "spawnRate": 0.08,
-      "respawnTime": 75,
-      "maxOnMap": 2
-    },
-    "shield": {
-      "name": "Shield",
-      "type": "buff",
-      "damageReduction": 0.5,
-      "duration": 15,
-      "spawnRate": 0.07,
-      "respawnTime": 80,
-      "maxOnMap": 2
-    }
-  },
-  
-  "maps": {
-    "dust2": {
-      "name": "Dust II",
-      "type": "deathmatch",
-      "size": "medium",
-      "players": 16,
-      "spawnPoints": 16,
-      "powerUpSpawnPoints": 8,
-      "background": "#c2b280",
-      "obstacles": ["boxes", "walls", "platforms"],
-      "file": "maps/dust2.json"
-    },
-    "ctf_canyon": {
-      "name": "Canyon",
-      "type": "capture_the_flag",
-      "size": "large",
-      "players": 24,
-      "spawnPoints": 24,
-      "flagPoints": 2,
-      "background": "#87ceeb",
-      "obstacles": ["bridges", "caves", "tunnels"],
-      "file": "maps/ctf_canyon.json"
-    },
-    "br_island": {
-      "name": "Tropical Island",
-      "type": "battle_royale",
-      "size": "xlarge",
-      "players": 100,
-      "spawnPoints": 100,
-      "lootSpawnPoints": 200,
-      "vehicleSpawnPoints": 10,
-      "background": "#32cd32",
-      "features": ["beach", "jungle", "village", "airfield"],
-      "file": "maps/br_island.json"
-    }
-  },
-  
-  "playerSettings": {
-    "defaultHealth": 100,
-    "defaultSpeed": 5,
-    "defaultJumpHeight": 10,
-    "maxHealth": 200,
-    "maxSpeed": 10,
-    "hitBoxSize": 32,
-    "respawnInvulnerability": 3,
-    "fallDamage": true,
-    "fallDamageThreshold": 100
-  },
-  
-  "gameSettings": {
-    "tickRate": 60,
-    "maxPing": 300,
-    "autoBalance": true,
-    "voteKick": true,
-    "voteSkipMap": true,
-    "maxRounds": 30,
-    "warmupTime": 30,
-    "intermissionTime": 15,
-    "allowSpectators": true,
-    "maxSpectators": 10,
-    "recordingEnabled": true,
-    "chatEnabled": true,
-    "voiceChatEnabled": false,
-    "killCam": true
-  },
-  
-  "scoring": {
-    "kill": 100,
-    "assist": 50,
-    "headshot": 25,
-    "revenge": 50,
-    "flagCapture": 500,
-    "flagReturn": 100,
-    "flagPickup": 50,
-    "objectiveComplete": 200,
-    "suicidePenalty": -100,
-    "teamKillPenalty": -200,
-    "winBonus": 1000,
-    "lossBonus": 250
-  },
-  
-  "xpSystem": {
-    "xpPerKill": 50,
-    "xpPerWin": 200,
-    "xpPerMinute": 10,
-    "maxLevel": 100,
-    "xpForLevel": [
-      0, 100, 250, 500, 850, 1300, 1850, 2500, 3250, 4100,
-      5050, 6100, 7250, 8500, 9850, 11300, 12850, 14500, 16250, 18100,
-      20050, 22100, 24250, 26500, 28850, 31300, 33850, 36500, 39250, 42100,
-      45050, 48100, 51250, 54500, 57850, 61300, 64850, 68500, 72250, 76100,
-      80050, 84100, 88250, 92500, 96850, 101300, 105850, 110500, 115250, 120100,
-      125050, 130100, 135250, 140500, 145850, 151300, 156850, 162500, 168250, 174100,
-      180050, 186100, 192250, 198500, 204850, 211300, 217850, 224500, 231250, 238100,
-      245050, 252100, 259250, 266500, 273850, 281300, 288850, 296500, 304250, 312100,
-      320050, 328100, 336250, 344500, 352850, 361300, 369850, 378500, 387250, 396100,
-      405050, 414100, 423250, 432500, 441850, 451300, 460850, 470500, 480250, 490100
-    ],
-    "rewards": {
-      "level5": "skin_basic",
-      "level10": "emote_dance",
-      "level20": "skin_rare",
-      "level30": "weapon_skin",
-      "level50": "skin_epic",
-      "level75": "title_legend",
-      "level100": "skin_legendary"
-    }
-  },
-  
-  "achievements": {
-    "first_blood": {
-      "name": "First Blood",
-      "description": "Получи первое убийство в матче",
-      "xpReward": 100,
-      "icon": "achievements/first_blood.png"
-    },
-    "killing_spree": {
-      "name": "Killing Spree",
-      "description": "Убей 5 игроков подряд без смерти",
-      "xpReward": 250,
-      "icon": "achievements/killing_spree.png"
-    },
-    "headshot_master": {
-      "name": "Headshot Master",
-      "description": "Сделай 100 хедшотов",
-      "xpReward": 500,
-      "icon": "achievements/headshot_master.png"
-    },
-    "flag_carrier": {
-      "name": "Flag Carrier",
-      "description": "Захвати флаг 50 раз",
-      "xpReward": 1000,
-      "icon": "achievements/flag_carrier.png"
-    },
-    "survivor": {
-      "name": "Survivor",
-      "description": "Выживи 10 волн зомби",
-      "xpReward": 750,
-      "icon": "achievements/survivor.png"
-    }
-  },
-  
-  "version": "1.717",
-  "author": "Pixel Combats Team",
-  "lastUpdated": "2025-12-20"
-}
+function getadm(player) {
+    player.inventory.Main.Value = true;
+    player.inventory.MainInfinity.Value = true;
+    player.inventory.Secondary.Value = true;
+    player.inventory.SecondaryInfinity.Value = true;
+    player.inventory.Melee.Value = true;
+    player.inventory.Explosive.Value = true;
+    player.inventory.ExplosiveInfinity.Value = true;
+    player.inventory.Build.Value = true;
+    player.inventory.BuildInfinity.Value = true;
+    player.contextedProperties.SkinType.Value = 1;
+    player.Build.Pipette.Value  = true;
+    player.Build.FlyEnable.Value = true;
+    player.Build.BalkLenChange.Value = true;
+    player.Build.BuildRangeEnable.Value = true;
+    player.Build.BuildModeEnable.Value = true;
+    player.Build.RemoveQuad.Value = true;
+    player.Build.FillQuad.Value = true;
+    player.Build.FloodFill.Value = true;
+    player.Build.ChangeSpawnsEnable.Value = true;
+    player.Build.LoadMapEnable.Value = true;
+    player.Build.ChangeMapAuthorsEnable.Value = true;
+    player.Build.GenMapEnable.Value = true;
+    player.Build.ChangeCameraPointsEnable.Value = true;
+    player.Build.CollapseChangeEnable.Value = true;
+    player.Build.QuadChangeEnable.Value = true;
+    player.Build.SetSkyEnable.Value = true;
+    player.Build.BlocksSet.Value = BuildBlocksSet.AllClear;
+    player.Damage.DamageIn.Value = false;
+  }
+  function getvip1(player) {
+    player.inventory.Main.Value = true;
+    player.inventory.Secondary.Value = true; 
+    player.inventory.SecondaryInfinity.Value = true;
+    player.inventory.Melee.Value = true; 
+    player.contextedProperties.MaxHp.Value = 15000;
+  }
+  function getvip2(player) {
+    player.inventory.Main.Value = true;
+    player.inventory.MainInfinity.Value = true;
+    player.inventory.Secondary.Value = true;
+    player.inventory.SecondaryInfinity.Value = true;
+    player.inventory.Melee.Value = true;
+    player.inventory.Explosive.Value = true;
+    player.inventory.ExplosiveInfinity.Value = true;
+    player.contextedProperties.MaxHp.Value = 20000;
+  }
+  function getvip3(player) {
+    player.inventory.Main.Value = true;
+    player.inventory.MainInfinity.Value = true;
+    player.inventory.Secondary.Value = true;
+    player.inventory.SecondaryInfinity.Value = true;
